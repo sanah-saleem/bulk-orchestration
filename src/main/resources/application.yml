@@ -19,6 +19,11 @@ spring:
     job:
       enabled: false              # we will enable specific jobs later
 
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
 server:
   port: 8083
 
