@@ -1,6 +1,6 @@
 package com.project.bulkorchestration.service;
 
-import com.project.bulkorchestration.UserImportBatchConfig;
+import com.project.bulkorchestration.config.UserImportBatchConfig;
 import com.project.bulkorchestration.model.ImportJob;
 import com.project.bulkorchestration.model.ImportJobStatus;
 import com.project.bulkorchestration.repository.ImportJobRepository;

@@ -1,4 +1,4 @@
-package com.project.bulkorchestration;
+package com.project.bulkorchestration.config;
 
 import com.project.bulkorchestration.model.UserImportItem;
 import org.slf4j.Logger;
@@ -27,8 +27,9 @@ public class UserImportBatchConfig {
     public static final String STEP_NAME = "userImportStep";
 
     @Bean
-    public Job userImportJob(JobRepository jobRepository, Step userImportStep) {
+    public Job userImportJob(JobRepository jobRepository, Step userImportStep, UserImportJobListener userImportJobListener) {
         return new JobBuilder(JOB_NAME, jobRepository)
+                .listener(userImportJobListener)
                 .start(userImportStep)
                 .build();
     }
