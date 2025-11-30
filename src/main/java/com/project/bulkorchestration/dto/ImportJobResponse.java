@@ -18,5 +18,6 @@ public record ImportJobResponse(
         Integer failureCount,
         String sourceFileName,
         String sourceFilePath,
-        String errorMessage
+        String errorMessage,
+        Boolean sendWelcomeEmail
 ) {}

@@ -23,6 +23,7 @@ public class ImportJobService {
         job.setStatus(ImportJobStatus.PENDING);
         job.setCreatedAt(OffsetDateTime.now());
         job.setSourceFileName(request.sourceFileName());
+        job.setSendWelcomeEmail(request.sendWelcomeEmail());
 
         ImportJob saved = importJobRepository.save(job);
         return toResponse(saved);
@@ -32,6 +33,23 @@ public class ImportJobService {
         ImportJob job = importJobRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Import job not found for id: " + id));
         return toResponse(job);
+    }
+
+    public ImportJobResponse createImportJobForUploadedFile(
+            String originalFileName,
+            String storedFilePath,
+            boolean sendWelcomeEmail
+    ) {
+        ImportJob job = new ImportJob();
+        job.setType(ImportJobType.USER_IMPORT);
+        job.setStatus(ImportJobStatus.PENDING);
+        job.setCreatedAt(OffsetDateTime.now());
+        job.setSourceFileName(originalFileName);
+        job.setSourceFilePath(storedFilePath);
+        job.setSendWelcomeEmail(sendWelcomeEmail);
+
+        ImportJob saved = importJobRepository.save(job);
+        return toResponse(saved);
     }
 
     private ImportJobResponse toResponse(ImportJob job) {
@@ -48,7 +66,8 @@ public class ImportJobService {
                 job.getFailureCount(),
                 job.getSourceFileName(),
                 job.getSourceFilePath(),
-                job.getErrorMessage()
+                job.getErrorMessage(),
+                job.isSendWelcomeEmail()
         );
     }
 

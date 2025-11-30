@@ -43,4 +43,6 @@ public class ImportJob {
     @Column(length = 500)
     private String errorMessage;
 
+    private boolean sendWelcomeEmail;
+
 }
