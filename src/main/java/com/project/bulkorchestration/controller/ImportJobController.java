@@ -4,6 +4,7 @@ import com.project.bulkorchestration.dto.CreateImportJobRequest;
 import com.project.bulkorchestration.dto.ImportJobResponse;
 import com.project.bulkorchestration.service.FileStorageService;
 import com.project.bulkorchestration.service.ImportJobService;
+import com.project.bulkorchestration.service.UserImportJobLaunchService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ public class ImportJobController {
 
     private final ImportJobService importJobService;
     private final FileStorageService fileStorageService;
+    private final UserImportJobLaunchService userImportJobLaunchService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -39,6 +41,13 @@ public class ImportJobController {
         String originalName = file.getOriginalFilename();
         return importJobService.createImportJobForUploadedFile(
                 originalName, storedPath, sendWelcomeMail );
+    }
+
+    @PostMapping("/{id}/run")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public String runImportJob(@PathVariable Long id) throws Exception {
+        userImportJobLaunchService.launchForImportJob(id);
+        return "Import job triggered for id=" + id;
     }
 
 }
