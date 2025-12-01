@@ -6,6 +6,7 @@ import com.project.bulkorchestration.model.ImportJobError;
 import com.project.bulkorchestration.model.UserImportItem;
 import com.project.bulkorchestration.repository.ImportJobErrorRepository;
 import com.project.bulkorchestration.repository.ImportJobRepository;
+import com.project.bulkorchestration.utils.CsvUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -53,6 +54,24 @@ public class ImportJobErrorService {
 
     public long countErrors(Long importJobId) {
         return errorRepository.countByImportJobId(importJobId);
+    }
+
+    public String buildErrorsCsv(Long importJobId) {
+        List<ImportJobErrorResponse> errors = getErrors(importJobId);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("email,firstName,lastName,errorMessage,createdAt,lineNumber\n");
+
+        for (ImportJobErrorResponse err : errors) {
+            sb.append(CsvUtils.escape(err.email())).append(",");
+            sb.append(CsvUtils.escape(err.firstName())).append(",");
+            sb.append(CsvUtils.escape(err.lastName())).append(",");
+            sb.append(CsvUtils.escape(err.errorMessage())).append(",");
+            sb.append(CsvUtils.escape(err.createdAt() != null ? err.createdAt().toString() : "")).append(",");
+            sb.append(err.lineNumber() != null ? err.lineNumber() : "").append("\n");
+        }
+
+        return sb.toString();
     }
 
 }

@@ -9,10 +9,14 @@ import com.project.bulkorchestration.service.ImportJobService;
 import com.project.bulkorchestration.service.UserImportJobLaunchService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RestController
@@ -58,6 +62,24 @@ public class ImportJobController {
     @GetMapping("/{id}/errors")
     public List<ImportJobErrorResponse> getImportErrors(@PathVariable Long id) {
         return importJobErrorService.getErrors(id);
+    }
+
+    @GetMapping("/{id}/errors/export")
+    public ResponseEntity<byte[]> exportImportErrors(@PathVariable Long id) {
+
+        importJobService.getJob(id);
+        String csvContent = importJobErrorService.buildErrorsCsv(id);
+        byte[] bytes = csvContent.getBytes(StandardCharsets.UTF_8);
+        String filename = "import_" + id + "_errors.csv";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("text", "csv"));
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
+        headers.setContentLength(bytes.length);
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(bytes);
     }
 
 }
