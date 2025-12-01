@@ -1,6 +1,7 @@
 package com.project.bulkorchestration.config;
 
 import com.project.bulkorchestration.model.UserImportItem;
+import com.project.bulkorchestration.service.UserManagementClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -84,10 +85,15 @@ public class UserImportBatchConfig {
     }
 
     @Bean
-    public ItemWriter<UserImportItem> userImportWriter() {
+    public ItemWriter<UserImportItem> userImportWriter(UserManagementClientService clientService) {
         return items -> {
             for (UserImportItem item : items) {
-                log.info("Writing item: {}", item);
+                try {
+                    clientService.createUser(item);
+                    log.info("Successfully created user in UM: {}", item.email());
+                } catch (Exception e) {
+                    log.error("Failed to create user {}: {}", item.email(), e.getMessage(), e);
+                }
             }
         };
     }
