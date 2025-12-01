@@ -1,6 +1,7 @@
 package com.project.bulkorchestration.config;
 
 import com.project.bulkorchestration.model.UserImportItem;
+import com.project.bulkorchestration.service.ImportJobErrorService;
 import com.project.bulkorchestration.service.UserManagementClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +86,11 @@ public class UserImportBatchConfig {
     }
 
     @Bean
-    public ItemWriter<UserImportItem> userImportWriter(UserManagementClientService clientService) {
+    @StepScope
+    public ItemWriter<UserImportItem> userImportWriter(
+            UserManagementClientService clientService,
+            ImportJobErrorService importJobErrorService,
+            @Value("#{jobParameters['importJobId']}") Long importJobId) {
         return items -> {
             for (UserImportItem item : items) {
                 try {
@@ -93,6 +98,7 @@ public class UserImportBatchConfig {
                     log.info("Successfully created user in UM: {}", item.email());
                 } catch (Exception e) {
                     log.error("Failed to create user {}: {}", item.email(), e.getMessage(), e);
+                    importJobErrorService.recordError(importJobId, item, e.getMessage());
                 }
             }
         };

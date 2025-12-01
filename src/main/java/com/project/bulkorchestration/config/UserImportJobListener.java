@@ -2,6 +2,7 @@ package com.project.bulkorchestration.config;
 
 import com.project.bulkorchestration.model.ImportJob;
 import com.project.bulkorchestration.model.ImportJobStatus;
+import com.project.bulkorchestration.repository.ImportJobErrorRepository;
 import com.project.bulkorchestration.repository.ImportJobRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ public class UserImportJobListener implements JobExecutionListener {
     private static final Logger log = LoggerFactory.getLogger(UserImportJobListener.class);
 
     private final ImportJobRepository importJobRepository;
+    private final ImportJobErrorRepository importJobErrorRepository;
 
     @Override
     public void afterJob(JobExecution jobExecution) {
@@ -41,11 +43,12 @@ public class UserImportJobListener implements JobExecutionListener {
         long totalWritten = jobExecution.getStepExecutions().stream()
                 .mapToLong(StepExecution::getWriteCount)
                 .sum();
-        long failureCount = Math.max(0, totalRead - totalWritten);
+        long failureCount = importJobErrorRepository.countByImportJobId(importJobId);
+        long successCount = Math.max(0, totalRead - failureCount);
         importJob.setFinishedAt(OffsetDateTime.now());
         importJob.setTotalItems((int)totalRead);
         importJob.setProcessedItems((int)totalWritten);
-        importJob.setSuccessCount((int)totalWritten);
+        importJob.setSuccessCount((int)successCount);
         importJob.setFailureCount((int)failureCount);
         if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
             importJob.setStatus(ImportJobStatus.COMPLETED);
