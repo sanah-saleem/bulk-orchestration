@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "import_jobs")
@@ -44,5 +45,10 @@ public class ImportJob {
     private String errorMessage;
 
     private boolean sendWelcomeEmail;
+
+    private UUID inputFileId;
+    private UUID failedFileId;
+    private String inputFileName;
+    private String failedFileName;
 
 }
